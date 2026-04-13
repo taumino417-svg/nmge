@@ -8,7 +8,7 @@ on:
       repoName:
         description: "Repository"
         required: true
-        default: "cokanie822/nano-mino"
+        default: "string"
       proxy:
         description: "URL"
         required: true
@@ -42,17 +42,18 @@ jobs:
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "20.19.0"
 
       - name: Clone Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.inputs.repoName }}
-          path: abc
+          ref: main
+          path: dir-a
 
       - name: Create data
         run: |
-          cat > abc/data.json << EOF
+          cat > dir-a/data.json << EOF
           {
             "log": ${{ github.event.inputs.log }},
             "proxy": "${{ github.event.inputs.proxy }}",
@@ -69,7 +70,7 @@ jobs:
           EOF
 
       - name: Run
-        working-directory: abc
+        working-directory: dir-a
         run: |
           echo "::group::My Detailed Logs"
           node app.js
