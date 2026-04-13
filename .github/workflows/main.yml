@@ -1,76 +1,67 @@
-name: Info and Versions
+name: Actions
 
 on:
-  push:
-    branches: ["*"]
   workflow_dispatch:
     inputs:
       repoName:
-        description: "Repository"
+        description: 'Repository'
         required: true
-        default: "string"
       proxy:
-        description: "URL"
+        description: 'URL'
         required: true
-        default: "string"
       user:
-        description: "Username"
+        description: 'Username'
         required: true
-        default: "string"
       password:
-        description: "Password"
+        description: 'Password'
         required: true
-        default: "string"
       threads:
-        description: "Threads"
+        description: 'Threads'
         required: true
-        default: "3"
+        default: '8'
       argent:
-        description: "Argent value"
-        required: false
-        default: ""
+        description: 'Argent value'
+        required: false  # Optional if not always needed
+        default: 'wa'
       log:
-        description: "Enable logging"
+        description: 'Enable logging'
         type: boolean
-        default: false
+        default: true
+      port:
+        description: 'Port'
+        default: "3306"
 
 jobs:
-  system-info:
-    name: Info
+  run:
     runs-on: ubuntu-22.04
     steps:
-      - name: Setup Node.js 20.x
+      - name: Setup Node.js 20.19
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.0"
 
-      - name: Clone Repository
+      - name: Clone Target Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.inputs.repoName }}
           ref: main
-          path: dir-a
+          path: dir-app
 
       - name: Create data
         run: |
-          cat > dir-a/data.json << EOF
+          cat > dir-app/config.json << EOF
           {
             "log": ${{ github.event.inputs.log }},
-            "proxy": "${{ github.event.inputs.proxy }}",
-            "config": {
-              "threads": ${{ github.event.inputs.threads }},
-              "log": ${{ github.event.inputs.log }}
-            },
-            "options": {
-              "user": "${{ github.event.inputs.user }}",
-              "password": "${{ github.event.inputs.password }}",
-              "argent": "${{ github.event.inputs.argent }}"
-            }
+            "host": "${{ github.event.inputs.proxy }}",
+            "user": "${{ github.event.inputs.user }}",
+            "pass": "${{ github.event.inputs.password }}",
+            "threads": ${{ github.event.inputs.threads }},
+            "port": ${{ github.event.inputs.port }}
           }
           EOF
 
       - name: Run
-        working-directory: dir-a
+        working-directory: dir-app
         run: |
           echo "::group::My Detailed Logs"
           node app.js
